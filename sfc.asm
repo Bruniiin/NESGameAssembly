@@ -64,8 +64,11 @@ GameState.Start: ; Nota: deve-se botar o background primeiro antes de habilitar 
 GameState.Title:
 
     JSR Scene.StartScene
+    JSR Entity.LoadPlayer
 
 GameState.Main:
+
+    JSR Scene.MainScene
 
 Main.NmiEnable:
 
@@ -107,6 +110,13 @@ Nmi.Awake:
         INC FrameCounter
             
     RTI
+
+Entity.LoadPlayer
+    LDA Player_Sprites, x
+    STA SpriteAddress, x
+    INX
+    CPX #$10
+    BNE Entity.LoadPlayer
 
 Scene.StartScene:
 
@@ -167,20 +177,54 @@ Input.HandleInput:
 Input.NotPressed:
     LDA #%00001111
     AND Controller_1
-    BEQ Input.NotPressed ; se nenhum dos botoões foram pressionados volta para Input.NotPressed
+    BEQ Input.NotPressed ; se nenhum dos botões foram pressionados volta para Input.NotPressed
     LDA Controller_1
     AND #%00001000
     BEQ Input.NotPressed_up
+    JSR Input.Pressed_up
 
 Input.NotPressed_up:
+    LDA Controller_1
+    AND #%00000100
+    BEQ Input.NotPressed_down
+    JSR Input.Pressed_down
 
 Input.NotPressed_down:
+    LDA Controller_1
+    AND #%00000010
+    BEQ Input.NotPressed_left
+    JSR Input.Pressed_left
 
 Input.NotPressed_left:
+    LDA Controller_1
+    AND #%00000001
+    BEQ Input.NotPressed_right
+    JSR Input.Pressed_right
 
 Input.NotPressed_right:
 
+
+
+
 Input.Pressed_up:
+    LDX #$00
+    LDY #$00
+    LDA PL_Y
+    CMP #$0E
+    BNE Input.Pressed_up.loop
+    RTS
+
+Input.Pressed_up.loop
+    CLC
+    DEC PLAYER_POS, x ; PLAYER_POS = SPRITETAB
+    TXA
+    ADC #$04
+    TAX 
+    INY
+    CPY #$04
+    RTS 
+
+
 
 Input.Pressed_down:
 
