@@ -15,5 +15,5 @@ StateExitGame = $02
 
 PL_Y       = $020C
 PL_X       = $020F
-PL_POS = SpriteAddress
+PLAYER_POS = $0200
 SpriteAddress = $0200

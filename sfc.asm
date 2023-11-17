@@ -63,12 +63,10 @@ GameState.Start: ; Nota: deve-se botar o background primeiro antes de habilitar 
 
 GameState.Title:
 
-    JSR Scene.StartScene
     JSR Entity.LoadPlayer
+    JSR Scene.StartScene
 
 GameState.Main:
-
-    JSR Scene.MainScene
 
 Main.NmiEnable:
 
@@ -119,6 +117,7 @@ Entity.LoadPlayer:
     INX
     CPX #$10
     BNE Entity.LoadPlayer
+    RTS
 
 Scene.StartScene:
 
@@ -181,7 +180,7 @@ Input.HandleInput:
 Input.NotPressed:
     LDA #%00001111
     AND Controller_1
-    BEQ Input.NotPressed.right ; se nenhum dos botões foram pressionados volta para Nmi
+    BEQ Input.NotPressed_right ; se nenhum dos botões foram pressionados volta para Nmi
     LDA Controller_1
     AND #%00001000
     BEQ Input.NotPressed_up
@@ -226,6 +225,7 @@ Input.Pressed_up.loop
     TAX 
     INY
     CPY #$04
+    BNE Input.Pressed_up.loop
     RTS 
 
 Input.Pressed_down:
@@ -233,8 +233,9 @@ Input.Pressed_down:
     LDX #$00
     LDY #$00
     LDA PL_Y
-    CMP #$DEC
+    CMP #$D7
     BNE Input.Pressed_down.loop
+    RTS
 
 Input.Pressed_down.loop
 
@@ -254,6 +255,7 @@ Input.Pressed_left:
     LDA PL_X
     CMP #$08
     BNE Input.Pressed_left.loop
+    RTS
 
 Input.Pressed_left.loop
     CLC
@@ -272,8 +274,9 @@ Input.Pressed_right:
     LDA PL_X
     CMP #$F8
     BNE Input.Pressed_right.loop
+    RTS
 
-Input.Pressed_right_loop
+Input.Pressed_right.loop
     CLC
     INC PLAYER_POS, x
     TXA
