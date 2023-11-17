@@ -111,8 +111,10 @@ Nmi.Awake:
             
     RTI
 
-Entity.LoadPlayer
-    LDA Player_Sprites, x
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+Entity.LoadPlayer:
+    LDA ENTITY0, x
     STA SpriteAddress, x
     INX
     CPX #$10
@@ -170,6 +172,8 @@ MainScene:
 Scene.SceneSet:
     RTS
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 Input.HandleInput:
 
     JSR Input.GetInput
@@ -177,7 +181,7 @@ Input.HandleInput:
 Input.NotPressed:
     LDA #%00001111
     AND Controller_1
-    BEQ Input.NotPressed ; se nenhum dos botões foram pressionados volta para Input.NotPressed
+    BEQ Input.NotPressed.right ; se nenhum dos botões foram pressionados volta para Nmi
     LDA Controller_1
     AND #%00001000
     BEQ Input.NotPressed_up
@@ -202,16 +206,16 @@ Input.NotPressed_left:
     JSR Input.Pressed_right
 
 Input.NotPressed_right:
+    RTS
 
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 Input.Pressed_up:
     LDX #$00
     LDY #$00
-    LDA PL_Y
-    CMP #$0E
-    BNE Input.Pressed_up.loop
+    LDA PL_Y ; analisa as coordenadas e impede o jogador de atravessar a borda da tela, LDA CMP RTS
+    CMP #$0E 
+    BNE Input.Pressed_up.loop ; inicializa  movimentação para cima caso jogador não esteja na borda da tela
     RTS
 
 Input.Pressed_up.loop
@@ -224,14 +228,63 @@ Input.Pressed_up.loop
     CPY #$04
     RTS 
 
-
-
 Input.Pressed_down:
 
+    LDX #$00
+    LDY #$00
+    LDA PL_Y
+    CMP #$DEC
+    BNE Input.Pressed_down.loop
+
+Input.Pressed_down.loop
+
+    CLC
+    INC PLAYER_POS, x
+    TXA
+    ADC #$04
+    TAX
+    INY
+    CPY #$04
+    BNE Input.Pressed_down.loop
+    RTS
+
 Input.Pressed_left:
+    LDX #$03
+    LDY #$00
+    LDA PL_X
+    CMP #$08
+    BNE Input.Pressed_left.loop
+
+Input.Pressed_left.loop
+    CLC
+    DEC PLAYER_POS, x
+    TXA
+    ADC #$04
+    TAX
+    INY
+    CPY #$04
+    BNE Input.Pressed_left.loop
+    RTS
 
 Input.Pressed_right:
+    LDX #$03
+    LDY #$00
+    LDA PL_X
+    CMP #$F8
+    BNE Input.Pressed_right.loop
+
+Input.Pressed_right_loop
+    CLC
+    INC PLAYER_POS, x
+    TXA
+    ADC #$04
+    TAX
+    INY
+    CPY #$04
+    BNE Input.Pressed_right.loop
     RTS
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 Input.GetInput:
 
@@ -252,6 +305,11 @@ Input.GetInput.loop
 
 
 
+
+
+
+
+
 ;
 
  .bank 1
@@ -260,6 +318,12 @@ Input.GetInput.loop
 PAL0: ; paleta de title, paleta de cima e de baixo são 16 bytes(2) = 32 
   .db $22,$29,$1A,$0F, $22,$36,$17,$0F, $22,$30,$21,$0F, $22,$27,$17,$0F
   .db $22,$16,$27,$18, $0F,$1A,$30,$27, $22,$29,$29,$29, $22,$29,$29,$29
+
+ENTITY0:
+  .db $80, $32, $00, $80
+  .db $80, $33, $00, $88
+  .db $88, $42, $00, $80
+  .db $88, $43, $00, $88
 
  .org $FFFA
  .dw NMI
