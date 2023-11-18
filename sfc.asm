@@ -32,8 +32,6 @@ Awake.Reset:
     STX $2001
     STX $4010
 
-    JSR Awake.BlankWait
-
 Awake.ClrMem:
     
     LDA #$00
@@ -47,8 +45,6 @@ Awake.ClrMem:
     STA $200, x
     INX
     BNE Awake.ClrMem
-
-    JSR Awake.BlankWait
 
 ; Main
 
@@ -65,13 +61,14 @@ GameState.Title:
 
     JSR Entity.LoadPlayer
     JSR Scene.StartScene
+    JSR Awake.BlankWait
 
 GameState.Main:
 
 Main.NmiEnable:
 
-    LDA #$90
-    STA $2000
+    LDA #$90 ; #%10010000
+    STA $2000 ; #%00011110
     LDA #$1E
     STA $2001
 
@@ -164,7 +161,7 @@ TitleScene.loop:
     INX
     CPX #$04
     BNE TitleScene.loop
-    BEQ Scene.SceneSet
+;   BEQ Scene.SceneSet
 
 MainScene:
 
@@ -192,7 +189,7 @@ Input.NotPressed_up:
     BEQ Input.NotPressed_down
     JSR Input.Pressed_down
 
-Input.NotPressed_down:
+Input.NotPressed_down
     LDA Controller_1
     AND #%00000010
     BEQ Input.NotPressed_left
@@ -229,7 +226,6 @@ Input.Pressed_up.loop
     RTS 
 
 Input.Pressed_down:
-
     LDX #$00
     LDY #$00
     LDA PL_Y
@@ -238,7 +234,6 @@ Input.Pressed_down:
     RTS
 
 Input.Pressed_down.loop
-
     CLC
     INC PLAYER_POS, x
     TXA
