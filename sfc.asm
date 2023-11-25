@@ -59,11 +59,14 @@ GameState.Start: ; Nota: deve-se botar o background primeiro antes de habilitar 
 
 GameState.Title:
 
-    JSR Entity.LoadPlayer
     JSR Scene.StartScene
     JSR Awake.BlankWait
 
 GameState.Main:
+
+    JSR Entity.LoadPlayer
+    JSR Scene.StartScene
+    JSR Awake.BlankWait
 
 Main.NmiEnable:
 
@@ -99,6 +102,7 @@ Nmi.Awake:
     STA $2005
 
     Nmi.Main:
+        
         JSR Input.HandleInput
 
     Nmi.FrameUpdate:
@@ -120,7 +124,7 @@ Scene.StartScene:
 
     LDA State
     CMP #State.Main
-    BEQ MainScene
+    BEQ Scene.MainScene
 
 TitlePal:
     LDA $2002
@@ -163,7 +167,47 @@ TitleScene.loop:
     BNE TitleScene.loop
 ;   BEQ Scene.SceneSet
 
+Scene.MainScene:
+
+MainPal:
+    LDA $2002
+    LDA #$3F
+    STA $2006
+    LDA #$00
+    STA $2006
+    LDX #$00
+
+MainPal.loop:
+    LDA PAL1, x
+    STA $2007
+    INX
+    CPX #$20
+    BNE TitlePal.loop
+
 MainScene:
+    LDA $2002
+    LDA #$20
+    STA $2006
+    LDA #$00
+    STA $2006
+    LDA #$00
+    STA BG1LO
+    LDA #HIGH(BG1)
+    STA BG1HI
+
+    LDX #$00
+    LDY #$00
+
+MainScene.loop:
+    LDA [BG1LO], y
+    STA $2007
+    INY
+    CPY #$00
+    BNE MainScene.loop
+    INC BG0HI
+    INX
+    CPX #$04
+    BNE MainScene.loop
 
 Scene.SceneSet:
     RTS
@@ -299,6 +343,7 @@ Input.GetInput.loop
     BNE Input.GetInput.loop
     RTS
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
@@ -306,14 +351,15 @@ Input.GetInput.loop
 
 
 
-
-
-;
 
  .bank 1
  .org $E000
 
 PAL0: ; paleta de title, paleta de cima e de baixo são 16 bytes(2) = 32 
+  .db $22,$29,$1A,$0F, $22,$36,$17,$0F, $22,$30,$21,$0F, $22,$27,$17,$0F
+  .db $22,$16,$27,$18, $0F,$1A,$30,$27, $22,$29,$29,$29, $22,$29,$29,$29
+
+PAL1: 
   .db $22,$29,$1A,$0F, $22,$36,$17,$0F, $22,$30,$21,$0F, $22,$27,$17,$0F
   .db $22,$16,$27,$18, $0F,$1A,$30,$27, $22,$29,$29,$29, $22,$29,$29,$29
 
