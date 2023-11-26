@@ -126,7 +126,7 @@ Scene.StartScene:
     CMP #State.Main
     BEQ Scene.MainScene
 
-TitlePal:
+TitlePAL:
     LDA $2002
     LDA #$3F
     STA $2006
@@ -134,7 +134,7 @@ TitlePal:
     STA $2006
     LDX #$00
 
-TitlePal.loop:
+TitlePAL.loop:
     LDA PAL0, x
     STA $2007
     INX
@@ -165,11 +165,11 @@ TitleScene.loop:
     INX
     CPX #$04
     BNE TitleScene.loop
-;   BEQ Scene.SceneSet
+    BEQ Scene.SceneSet
 
 Scene.MainScene:
 
-MainPal:
+MainPAL:
     LDA $2002
     LDA #$3F
     STA $2006
@@ -177,7 +177,7 @@ MainPal:
     STA $2006
     LDX #$00
 
-MainPal.loop:
+MainPAL.loop:
     LDA PAL1, x
     STA $2007
     INX
@@ -204,7 +204,7 @@ MainScene.loop:
     INY
     CPY #$00
     BNE MainScene.loop
-    INC BG0HI
+    INC BG1HI
     INX
     CPX #$04
     BNE MainScene.loop
@@ -218,32 +218,65 @@ Input.HandleInput:
 
     JSR Input.GetInput
 
+;    LDA State
+;    CMP #$00
+;    BEQ Input.Title
+
 Input.NotPressed:
     LDA #%00001111
     AND Controller_1
     BEQ Input.NotPressed_right ; se nenhum dos botões foram pressionados volta para Nmi
     LDA Controller_1
     AND #%00001000
-    BEQ Input.NotPressed_up
+    BEQ Input.NotPressed_up 
+
+    LDA State
+    CMP #$00
+    BEQ Input.Pressed_up.Title
     JSR Input.Pressed_up
+
+    Input.Pressed_up.Title
+        JSR Input.Pressed_up
+
 
 Input.NotPressed_up:
     LDA Controller_1
     AND #%00000100
     BEQ Input.NotPressed_down
+
+    LDA State
+    CMP #$00
+    BEQ Input.Pressed_down.Title
     JSR Input.Pressed_down
 
+    Input.Pressed_down.Title
+        JSR Input.Pressed_down
+
 Input.NotPressed_down
-    LDA Controller_1
+    LDA Controller_1    
     AND #%00000010
     BEQ Input.NotPressed_left
+
+    LDA State
+    CMP #$00
+    BEQ Input.Pressed_left.Title
     JSR Input.Pressed_left
+
+    Input.Pressed_left.Title
+        JSR Input.Pressed_left
 
 Input.NotPressed_left:
     LDA Controller_1
     AND #%00000001
     BEQ Input.NotPressed_right
+
+    LDA State
+    CMP #$00
+    BEQ Input.Pressed_right.Title
     JSR Input.Pressed_right
+
+    Input.Pressed_right.Title
+        JSR Input.Pressed_right
 
 Input.NotPressed_right:
     RTS
@@ -344,8 +377,6 @@ Input.GetInput.loop
     RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 
 
