@@ -232,12 +232,11 @@ Input.NotPressed:
 
     LDA State
     CMP #$00
-    BEQ Input.Pressed_up.Title
+;    BEQ Input.Struct_up
     JSR Input.Pressed_up
 
-    Input.Pressed_up.Title
-        JSR Input.Pressed_up
-
+    Input.Struct_up
+        JSR Input.Pressed_up_Title
 
 Input.NotPressed_up:
     LDA Controller_1
@@ -246,11 +245,11 @@ Input.NotPressed_up:
 
     LDA State
     CMP #$00
-    BEQ Input.Pressed_down.Title
+;    BEQ Input.Struct_down
     JSR Input.Pressed_down
 
-    Input.Pressed_down.Title
-        JSR Input.Pressed_down
+    Input.Struct_down
+        JSR Input.Pressed_down_Title
 
 Input.NotPressed_down
     LDA Controller_1    
@@ -259,11 +258,11 @@ Input.NotPressed_down
 
     LDA State
     CMP #$00
-    BEQ Input.Pressed_left.Title
+;    BEQ Input.Struct_left
     JSR Input.Pressed_left
 
-    Input.Pressed_left.Title
-        JSR Input.Pressed_left
+    Input.Struct_left
+        JSR Input.Pressed_left_Title
 
 Input.NotPressed_left:
     LDA Controller_1
@@ -272,10 +271,10 @@ Input.NotPressed_left:
 
     LDA State
     CMP #$00
-    BEQ Input.Pressed_right.Title
+;    BEQ Input.Struct_right
     JSR Input.Pressed_right
 
-    Input.Pressed_right.Title
+    Input.Struct_right
         JSR Input.Pressed_right
 
 Input.NotPressed_right:
@@ -357,6 +356,84 @@ Input.Pressed_right.loop
     INY
     CPY #$04
     BNE Input.Pressed_right.loop
+    RTS
+
+
+
+Input.Pressed_up_Title:
+    LDX #$00
+    LDY #$00
+;    LDA PL_Y ; analisa as coordenadas e impede o jogador de atravessar a borda da tela, LDA CMP RTS
+;    CMP #$0E 
+;    BNE Input.Pressed_up_Title.loop ; inicializa  movimentação para cima caso jogador não esteja na borda da tela
+;    RTS
+
+Input.Pressed_up_Title.loop
+    CLC
+    DEC PLAYER_POS, x ; PLAYER_POS = SPRITETAB
+    TXA
+    ADC #$04
+    TAX 
+    INY
+    CPY #$04
+    BNE Input.Pressed_up_Title.loop
+    RTS 
+
+Input.Pressed_down_Title:
+    LDX #$00
+    LDY #$00
+;    LDA PL_Y
+;    CMP #$D7
+;    BNE Input.Pressed_down_Title.loop
+;    RTS
+
+Input.Pressed_down_Title.loop
+    CLC
+    INC PLAYER_POS, x
+    TXA
+    ADC #$04
+    TAX
+    INY
+    CPY #$04
+    BNE Input.Pressed_down_Title.loop
+    RTS
+
+Input.Pressed_left_Title:
+    LDX #$03
+    LDY #$00
+;   LDA PL_X
+;    CMP #$08
+;    BNE Input.Pressed_left_Title.loop
+;    RTS
+
+Input.Pressed_left_Title.loop
+    CLC
+    DEC PLAYER_POS, x
+    TXA
+    ADC #$04
+    TAX
+    INY
+    CPY #$04
+    BNE Input.Pressed_left_Title.loop
+    RTS
+
+Input.Pressed_right_Title:
+    LDX #$03
+    LDY #$00
+;    LDA PL_X
+;    CMP #$F8
+;    BNE Input.Pressed_right_Title.loop
+;    RTS
+
+Input.Pressed_right_Title.loop
+    CLC
+    INC PLAYER_POS, x
+    TXA
+    ADC #$04
+    TAX
+    INY
+    CPY #$04
+    BNE Input.Pressed_right_Title.loop
     RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
