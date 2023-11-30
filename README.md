@@ -1,7 +1,6 @@
 # NESGameAssembly
 Desenvolvedor de jogos aprendendo linguagem de baixo nível básica 
 
-O que é:
 Uma demonstração de um jogo de NES feito em ASM que exibe um personagem movendo na tela e pode ser jogado em hardware verdadeiro. Foram usados os gráficos de Super Mario Bros. em cortesia de Nerdy Nights
 
 Instruções de build:
@@ -14,5 +13,7 @@ Resultado:
 
 Créditos:
 https://nerdy-nights.nes.science/
+
 https://www.nesdev.org/
+
 https://github.com/haaspt/NES-dev
