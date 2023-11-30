@@ -232,7 +232,7 @@ Input.NotPressed:
 
     LDA State
     CMP #$00
-;    BEQ Input.Struct_up
+    BEQ Input.Struct_up
     JSR Input.Pressed_up
 
     Input.Struct_up
@@ -245,7 +245,7 @@ Input.NotPressed_up:
 
     LDA State
     CMP #$00
-;    BEQ Input.Struct_down
+    BEQ Input.Struct_down
     JSR Input.Pressed_down
 
     Input.Struct_down
@@ -255,27 +255,17 @@ Input.NotPressed_down
     LDA Controller_1    
     AND #%00000010
     BEQ Input.NotPressed_left
-
     LDA State
     CMP #$00
-;    BEQ Input.Struct_left
     JSR Input.Pressed_left
-
-    Input.Struct_left
-        JSR Input.Pressed_left_Title
 
 Input.NotPressed_left:
     LDA Controller_1
     AND #%00000001
     BEQ Input.NotPressed_right
-
     LDA State
     CMP #$00
-;    BEQ Input.Struct_right
     JSR Input.Pressed_right
-
-    Input.Struct_right
-        JSR Input.Pressed_right
 
 Input.NotPressed_right:
     RTS
@@ -358,7 +348,7 @@ Input.Pressed_right.loop
     BNE Input.Pressed_right.loop
     RTS
 
-
+; tela de título
 
 Input.Pressed_up_Title:
     LDX #$00
@@ -396,44 +386,6 @@ Input.Pressed_down_Title.loop
     INY
     CPY #$04
     BNE Input.Pressed_down_Title.loop
-    RTS
-
-Input.Pressed_left_Title:
-    LDX #$03
-    LDY #$00
-;   LDA PL_X
-;    CMP #$08
-;    BNE Input.Pressed_left_Title.loop
-;    RTS
-
-Input.Pressed_left_Title.loop
-    CLC
-    DEC PLAYER_POS, x
-    TXA
-    ADC #$04
-    TAX
-    INY
-    CPY #$04
-    BNE Input.Pressed_left_Title.loop
-    RTS
-
-Input.Pressed_right_Title:
-    LDX #$03
-    LDY #$00
-;    LDA PL_X
-;    CMP #$F8
-;    BNE Input.Pressed_right_Title.loop
-;    RTS
-
-Input.Pressed_right_Title.loop
-    CLC
-    INC PLAYER_POS, x
-    TXA
-    ADC #$04
-    TAX
-    INY
-    CPY #$04
-    BNE Input.Pressed_right_Title.loop
     RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
