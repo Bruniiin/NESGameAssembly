@@ -48,7 +48,7 @@ Awake.ClrMem:
 
 ; Main
 
-    LDA #State.Title
+    LDA #State.Main
 
 GameState.Start: ; Nota: deve-se botar o background primeiro antes de habilitar NMI, ao botar outro, desabilita NMI e etc.
 
@@ -61,6 +61,7 @@ GameState.Title:
 
     JSR Scene.StartScene
     JSR Awake.BlankWait
+    BCC Main.NmiEnable
 
 GameState.Main:
 
@@ -124,7 +125,7 @@ Scene.StartScene:
 
     LDA State
     CMP #State.Main
-    BEQ Scene.MainScene
+;    BEQ Scene.MainScene
 
 TitlePAL:
     LDA $2002
@@ -139,7 +140,7 @@ TitlePAL.loop:
     STA $2007
     INX
     CPX #$20
-    BNE TitlePal.loop
+    BNE TitlePAL.loop
 
 TitleScene:
     LDA $2002
@@ -182,7 +183,7 @@ MainPAL.loop:
     STA $2007
     INX
     CPX #$20
-    BNE TitlePal.loop
+    BNE MainPAL.loop
 
 MainScene:
     LDA $2002
@@ -232,11 +233,8 @@ Input.NotPressed:
 
     LDA State
     CMP #$00
-    BEQ Input.Struct_up
+    BNE Input.Struct_up
     JSR Input.Pressed_up
-
-    Input.Struct_up
-        JSR Input.Pressed_up_Title
 
 Input.NotPressed_up:
     LDA Controller_1
@@ -245,30 +243,33 @@ Input.NotPressed_up:
 
     LDA State
     CMP #$00
-    BEQ Input.Struct_down
+    BNE Input.Struct_down
     JSR Input.Pressed_down
-
-    Input.Struct_down
-        JSR Input.Pressed_down_Title
 
 Input.NotPressed_down
     LDA Controller_1    
     AND #%00000010
     BEQ Input.NotPressed_left
-    LDA State
-    CMP #$00
+;    LDA State
+;    CMP #$00
     JSR Input.Pressed_left
 
 Input.NotPressed_left:
     LDA Controller_1
     AND #%00000001
     BEQ Input.NotPressed_right
-    LDA State
-    CMP #$00
+;    LDA State
+;    CMP #$00
     JSR Input.Pressed_right
 
 Input.NotPressed_right:
     RTS
+
+Input.Struct_up
+        JSR Input.Pressed_up_Title
+
+Input.Struct_down
+        JSR Input.Pressed_down_Title
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
