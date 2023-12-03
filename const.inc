@@ -8,6 +8,7 @@ BG1LO .rs 1
 BG1HI .rs 1
 Controller_1 .rs 1
 Controller_2 .rs 1
+SceneReady .rs 1
 
 State.Main = $00 
 State.Title = $01

@@ -59,9 +59,9 @@ GameState.Start: ; Nota: deve-se botar o background primeiro antes de habilitar 
 
 GameState.Title:
 
+    JSR Entity.LoadStart
     JSR Scene.StartScene
     JSR Awake.BlankWait
-    BCC Main.NmiEnable
 
 GameState.Main:
 
@@ -78,13 +78,32 @@ Main.NmiEnable:
 
 Main: ; Loop principal
 
+Main.Global
+
     LDA FrameCounter ; Frame counter é framerate (60 vezes por segundo);
 
     Main.Wait:
         CMP FrameCounter
         BEQ Main.Wait
 
+;    LDA State
+;    BEQ Main.InGame
+
+Main.InTitle
+
     JMP Main
+
+Main.InGame
+
+    ; Lógica de jogo
+    JMP Main
+
+
+
+
+
+
+
 
 NMI:
 
@@ -107,6 +126,7 @@ Nmi.Awake:
         JSR Input.HandleInput
 
     Nmi.FrameUpdate:
+
         INC FrameCounter
             
     RTI
@@ -121,13 +141,21 @@ Entity.LoadPlayer:
     BNE Entity.LoadPlayer
     RTS
 
+Entity.LoadStart:
+    LDA ENTITY1, x
+    STA SpriteAddress, x
+    INX
+    CPX #$04
+    BNE Entity.LoadStart
+    RTS
+
 Scene.StartScene:
 
     LDA State
-    CMP #State.Main
+;   CMP #State.Main
 ;    BEQ Scene.MainScene
 
-TitlePAL:
+Title_Attr: ; Attr = Attribute table
     LDA $2002
     LDA #$3F
     STA $2006
@@ -135,12 +163,12 @@ TitlePAL:
     STA $2006
     LDX #$00
 
-TitlePAL.loop:
+Title_Attr.loop:
     LDA PAL0, x
     STA $2007
     INX
     CPX #$20
-    BNE TitlePAL.loop
+    BNE Title_Attr.loop
 
 TitleScene:
     LDA $2002
@@ -166,11 +194,13 @@ TitleScene.loop:
     INX
     CPX #$04
     BNE TitleScene.loop
-    BEQ Scene.SceneSet
+
+Scene.SceneSet.Title:
+    RTS
 
 Scene.MainScene:
 
-MainPAL:
+Main_Attr:
     LDA $2002
     LDA #$3F
     STA $2006
@@ -178,12 +208,12 @@ MainPAL:
     STA $2006
     LDX #$00
 
-MainPAL.loop:
+Main_Attr.loop:
     LDA PAL1, x
     STA $2007
     INX
     CPX #$20
-    BNE MainPAL.loop
+    BNE Main_Attr.loop
 
 MainScene:
     LDA $2002
@@ -210,7 +240,7 @@ MainScene.loop:
     CPX #$04
     BNE MainScene.loop
 
-Scene.SceneSet:
+ Scene.SceneSet:
     RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -430,6 +460,10 @@ ENTITY0:
   .db $80, $33, $00, $88
   .db $88, $42, $00, $80
   .db $88, $43, $00, $88
+
+ENTITY1:
+   ;vert tile attr horiz
+  .db $80, $32, $00, $80
 
  .org $FFFA
  .dw NMI
