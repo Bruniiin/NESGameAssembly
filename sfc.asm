@@ -98,6 +98,7 @@ Main.InGame
     ; Lógica de jogo
     JMP Main
 
+; A demo é dividida em duas threads que são executadas cada frame, NMI e Main. NMI lida com os elementos gráficos da PPU e VRAM, áudio e controles. Main lida com a lógica do jogo em geral.
 
 
 
@@ -262,7 +263,7 @@ Input.NotPressed:
     BEQ Input.NotPressed_up 
 
     LDA State
-    CMP #$00
+    CMP #$01
     BNE Input.Struct_up
     JSR Input.Pressed_up
 
@@ -272,7 +273,7 @@ Input.NotPressed_up:
     BEQ Input.NotPressed_down
 
     LDA State
-    CMP #$00
+    CMP #$01
     BNE Input.Struct_down
     JSR Input.Pressed_down
 
@@ -280,16 +281,18 @@ Input.NotPressed_down
     LDA Controller_1    
     AND #%00000010
     BEQ Input.NotPressed_left
-;    LDA State
-;    CMP #$00
+    LDA State
+    CMP #$01
+    BNE Input.Struct_left
     JSR Input.Pressed_left
 
 Input.NotPressed_left:
     LDA Controller_1
     AND #%00000001
     BEQ Input.NotPressed_right
-;    LDA State
-;    CMP #$00
+    LDA State
+    CMP #$01
+    BNE Input.Struct_right
     JSR Input.Pressed_right
 
 Input.NotPressed_right:
@@ -297,9 +300,17 @@ Input.NotPressed_right:
 
 Input.Struct_up
         JSR Input.Pressed_up_Title
+        JMP Input.NotPressed_up
 
 Input.Struct_down
         JSR Input.Pressed_down_Title
+        JMP Input.NotPressed_down
+
+Input.Struct_left
+        RTS
+
+Input.Struct_right
+        RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
