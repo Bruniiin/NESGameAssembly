@@ -1,0 +1,2 @@
+NESASM sfc.asm
+pause
