@@ -78,7 +78,7 @@ Main.NmiEnable:
     LDA #$1E
     STA $2001
 
-Main: ; Loop principal
+Main: ; Main loop
 
 Main.Global
 
@@ -100,11 +100,6 @@ Main.InGame
     JMP Main
 
 ; The demo's program is split into two parts: the main program and NMI, which fires every v-blank.
-
-
-
-
-
 
 NMI:
 
@@ -163,8 +158,6 @@ Scene.DrawToBuffer:
     LDA #$00
     LDX #$00
     LDY #$00
-
-Scene.DrawToBufferLoop
 
     LDA CurrentScene, y
     STA BufferAmount ; first value of currentscene is how many buffers in a scene
