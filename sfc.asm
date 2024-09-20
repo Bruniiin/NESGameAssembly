@@ -50,24 +50,26 @@ Awake.ClrMem:
 
     LDA #State.Main
 
-GameState.Start: ; Nota: deve-se botar o background primeiro antes de habilitar NMI, ao botar outro, desabilita NMI e etc.
+GameState.Start: 
 
     STA State
     LDA State
-    CMP #$00
+    ; CMP #$00
     BEQ GameState.Main
 
 GameState.Title:
 
     JSR Entity.LoadStart
-    JSR Scene.StartScene
-    JSR Awake.BlankWait
+    ; JSR Scene.StartScene
+    JSR Scene.DrawToBuffer
+    ; JSR Awake.BlankWait
 
 GameState.Main:
 
     JSR Entity.LoadPlayer
-    JSR Scene.StartScene
-    JSR Awake.BlankWait
+    ; JSR Scene.StartScene
+    JSR Scene.DrawToBuffer
+    ; JSR Awake.BlankWait
 
 Main.NmiEnable:
 
@@ -80,7 +82,7 @@ Main: ; Loop principal
 
 Main.Global
 
-    LDA FrameCounter ; Frame counter é framerate (60 vezes por segundo);
+    LDA FrameCounter 
 
     Main.Wait:
         CMP FrameCounter
@@ -95,11 +97,9 @@ Main.InTitle
 
 Main.InGame
 
-    ; Lógica de jogo
     JMP Main
 
-; A demo é dividida em duas threads que são executadas cada frame, NMI e Main. NMI lida com os elementos gráficos da PPU e VRAM, áudio e controles. Main lida com a lógica do jogo em geral.
-
+; The demo's program is split into two parts: the main program and NMI, which fires every v-blank.
 
 
 
@@ -122,11 +122,19 @@ Nmi.Awake:
     STA $2005
     STA $2005
 
-    Nmi.Main:
-        
-        JSR Input.HandleInput
+    JSR Input.HandleInput
 
-    Nmi.FrameUpdate:
+    LDA #$00
+    LDX #$00
+
+    Nmi.GfxBufferLoop:
+
+        JSR Scene.LoadBuffer
+        LDA BuffersDone
+        CMP BufferAmount
+        BNE Nmi.GfxBufferLoop
+
+    Nmi.FrameUpdate: ; increments a variable once per frame, useful for RNG calculations later
 
         INC FrameCounter
             
@@ -148,6 +156,82 @@ Entity.LoadStart:
     INX
     CPX #$04
     BNE Entity.LoadStart
+    RTS
+
+Scene.DrawToBuffer:
+
+    LDA #$00
+    LDX #$00
+    LDY #$00
+
+Scene.DrawToBufferLoop
+
+    LDA CurrentScene, y
+    STA BufferAmount ; first value of currentscene is how many buffers in a scene
+
+    INY
+    LDA CurrentScene, y
+    STA <ScenePtr
+    INY
+    LDA CurrentScene, y
+    STA >ScenePtr
+
+    LDA ScenePtr, x
+    STA BufferToDraw ; first value of a metatile is their length
+
+Scene.DrawToBufferLoop
+
+    LDA ScenePtr, x
+    STA GfxBuffer, x
+    INX 
+    CPX BufferToDraw
+    BNE Scene.DrawToBufferLoop
+
+    LDX #$00
+    LDY #$00
+
+    RTS
+
+Scene.LoadBuffer:
+
+    LDA #$00
+    LDX #$00
+
+    LDA GfxBuffer, x
+    STA <BufferLength
+
+    INX 
+    LDA GfxBuffer, x
+    STA >BufferLocation
+
+    INX
+    LDA GfxBuffer, x
+    STA <BufferLocation
+
+    LDA $2002
+    LDA >BufferLocation
+    STA $2006
+    LDA <BufferLocation
+    STA $2006
+    INX
+    TXA
+    PHA  ; push A to stack for next buffer
+    TAY
+
+    LDA RLEMode
+    BNE Scene.RunRLE
+
+Scene.LoadBufferLoop:
+
+    LDA GfxBuffer, y
+    STA $2007
+    INY
+    CPY <BufferLength
+    BNE Scene.LoadBufferLoop
+    INX BuffersDone
+    RTS
+
+Scene.RunRLE:
     RTS
 
 Scene.StartScene:
@@ -257,7 +341,7 @@ Input.HandleInput:
 Input.NotPressed:
     LDA #%00001111
     AND Controller_1
-    BEQ Input.NotPressed_right ; se nenhum dos botões foram pressionados volta para Nmi
+    BEQ Input.NotPressed_right
     LDA Controller_1
     AND #%00001000
     BEQ Input.NotPressed_up 
@@ -317,14 +401,14 @@ Input.Struct_right
 Input.Pressed_up:
     LDX #$00
     LDY #$00
-    LDA PL_Y ; analisa as coordenadas e impede o jogador de atravessar a borda da tela, LDA CMP RTS
+    LDA PL_Y
     CMP #$0E 
-    BNE Input.Pressed_up.loop ; inicializa  movimentação para cima caso jogador não esteja na borda da tela
+    BNE Input.Pressed_up.loop
     RTS
 
 Input.Pressed_up.loop
     CLC
-    DEC PLAYER_POS, x ; PLAYER_POS = SPRITETAB
+    DEC PLAYER_POS, x
     TXA
     ADC #$04
     TAX 
@@ -390,19 +474,17 @@ Input.Pressed_right.loop
     BNE Input.Pressed_right.loop
     RTS
 
-; tela de título
-
 Input.Pressed_up_Title:
     LDX #$00
     LDY #$00
-;    LDA PL_Y ; analisa as coordenadas e impede o jogador de atravessar a borda da tela, LDA CMP RTS
+;    LDA PL_Y 
 ;    CMP #$0E 
-;    BNE Input.Pressed_up_Title.loop ; inicializa  movimentação para cima caso jogador não esteja na borda da tela
+;    BNE Input.Pressed_up_Title.loop 
 ;    RTS
 
 Input.Pressed_up_Title.loop
     CLC
-    DEC PLAYER_POS, x ; PLAYER_POS = SPRITETAB
+    DEC PLAYER_POS, x 
     TXA
     ADC #$04
     TAX 
@@ -456,6 +538,9 @@ Input.GetInput.loop
 
  .bank 1
  .org $E000
+
+CurrentScene:
+    .db $01, <BG_Floor, >BG_Floor, $01, <BG_Title, >BG_Title
 
 PAL0: ; paleta de title, paleta de cima e de baixo são 16 bytes(2) = 32 
   .db $22,$29,$1A,$0F, $22,$36,$17,$0F, $22,$30,$21,$0F, $22,$27,$17,$0F

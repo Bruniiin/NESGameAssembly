@@ -9,6 +9,15 @@ BG1HI .rs 1
 Controller_1 .rs 1
 Controller_2 .rs 1
 SceneReady .rs 1
+ScenePtr .ds 1
+BufferPtr .ds 1
+BufferAmount .rs 1
+BuffersDone .rs 1
+GfxBuffer .ds 1
+BufferToDraw .ds 1
+BufferLength .ds 1
+BufferLocation .ds 1
+RLEMode .rs 1
 
 State.Main = $00 
 State.Title = $01
