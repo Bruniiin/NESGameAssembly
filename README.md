@@ -1,19 +1,22 @@
 # NESGameAssembly
 
-Uma demonstração de um jogo de NES feito em ASM que exibe um personagem controlável na tela e que pode ser jogado no hardware real.
+This is a WIP project in ASM that reecreates a Famicom game as it would be made at the time by a developer in Japan. It can be played on real hardware and works on all emulators. All the code is 100% mine except for the controller input routines.
+This project has been quite significant for me as a developer, as I've been playing NES games since I was a child and always wanted to know how they were made. Additionally, it increased my understanding of machine code tenfold.
 
-~~Obs.: Para quem é experiente em desenvolvimento para NES, ainda não foi implementado vram buffer. A renderização ocorre diretamente, por isso pode haver bugs de renderização por conta do v blank.~~ fixed
+Build instructions:
+  1. Download the repository files;
+  2. Download NESASM (ca65 support coming later);
+  3. Extract NESASM and the repository files and execute sfc.cmd;
+  4. Open sfc.nes into any NES emulator.
 
-Instruções de build:
-  1. Baixe os arquivos do repositório;
-  2. Baixe NESASM;
-  3. Extraia NESASM e os arquivos do repositório e abra sfc.cmd ou sfc.ps1;
-  4. Abra o arquivo sfc.nes em qualquer emulador de NES.
-
-Créditos:
+Credits:
 
 https://nerdy-nights.nes.science/
 
 https://www.nesdev.org/
 
-https://github.com/haaspt/NES-dev
+https://github.com/haaspt/NES-dev (controller routines)
+
+https://www.youtube.com/@NesHacker
+
+https://chien1956.hatenablog.com/
